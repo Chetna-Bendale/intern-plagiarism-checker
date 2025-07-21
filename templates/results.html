@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Analysis Report</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1, h2 { color: #4a4a4a; border-bottom: 2px solid #5c67f2; padding-bottom: 10px; }
+        .report-section { margin-bottom: 40px; }
+        .file-list { list-style: none; padding: 0; }
+        .file-list li { padding: 8px; border-radius: 4px; margin-bottom: 5px; }
+        .file-list .present { background-color: #e6ffed; border-left: 5px solid #4caf50; }
+        .file-list .missing { background-color: #ffebee; border-left: 5px solid #f44336; }
+        .plagiarism-match { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; background-color: #fff9e6; }
+        .plagiarism-match blockquote { margin: 0; padding: 10px; background: #eee; border-left: 3px solid #ff9800; font-style: italic; }
+        .plagiarism-match a { color: #d32f2f; }
+        a.back-link { display: inline-block; margin-top: 20px; text-align: center; width: 100%; color: #5c67f2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Analysis Report for: {{ domain }}</h1>
+
+        <!-- Section 1: Submission Completeness -->
+        <div class="report-section">
+            <h2>Submission Checklist</h2>
+            {% if validation.all_submitted %}
+                <p style="color: green; font-weight: bold;">✔️ All required files were submitted.</p>
+            {% else %}
+                <p style="color: red; font-weight: bold;">❌ Missing {{ validation.missing_files|length }} required file(s).</p>
+                <h3>Missing Files:</h3>
+                <ul class="file-list">
+                    {% for file in validation.missing_files %}
+                        <li class="missing">{{ file }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <h3>Submitted Files:</h3>
+            <ul class="file-list">
+                {% for file in validation.submitted_files %}
+                    <li class="present">{{ file }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Section 2: External Plagiarism Report -->
+        <div class="report-section">
+            <h2>External Plagiarism Report</h2>
+            {% if plagiarism_report %}
+                <p>Found potential plagiarism in the following files. Sentences were found verbatim on the internet.</p>
+                {% for report in plagiarism_report %}
+                    <h3>File: {{ report.filename }}</h3>
+                    {% for match in report.matches %}
+                        <div class="plagiarism-match">
+                            <strong>Copied Text:</strong>
+                            <blockquote>{{ match.text }}</blockquote>
+                            <strong>Found at:</strong> <a href="{{ match.source_url }}" target="_blank">{{ match.source_title }}</a>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            {% else %}
+                <p>✅ No direct copy-paste from external sources was detected.</p>
+            {% endif %}
+        </div>
+
+        <a href="/" class="back-link">Run a new analysis</a>
+    </div>
+</body>
+</html>
